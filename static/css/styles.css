@@ -1,0 +1,18 @@
+.App {
+    text-align: center;
+    color:#541e1b;
+    font-family:'Netflix font';
+  }
+  
+  #posterContainer{
+    margin:100px;
+    display:inline-block;
+  }
+  #searchButton{
+    margin:10px;
+  }
+  .navbar-brand {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
