@@ -19,9 +19,7 @@ topMovies=["sinister","shrek","cars"]
 
 df=pd.read_csv("movie_dataset.csv")
 cos_similarity=pd.read_csv("cosine_similarity.csv",index_col=None,header=None)
-print(cos_similarity)
 cos_similarity=cos_similarity.values
-print(cos_similarity)
 
 def getTitleFromIndex(index):
     result=df[df.index==index]["title"].values
@@ -81,23 +79,24 @@ def searchPage():
 @app.route("/search/results",methods=["POST"])
 def getSimilar():
     movie=request.form.get("movie")
-    print(movie)
     idx=getIndexFromTitle(movie)
     scores=cos_similarity[idx]
     minHeap=[]
     json=list()
     for i in range(len(scores)):
-        if scores[i]>1:
-            scores[i]%=1
-        heapq.heappush(minHeap,[-1*scores[i],getTitleFromIndex(i)])
-    for i in range(21):
-        closest=heapq.heappop(minHeap)
-        if i==0 or closest[1]==movie or int(closest[0])==1:
+        if int(scores[i])==1:
             continue
-        json.append(closest[1])
+        if len(minHeap)<=20:
+            heapq.heappush(minHeap,[scores[i],getTitleFromIndex(i)])
+        else:
+            if scores[i]>minHeap[0][0]:
+                heapq.heappop(minHeap)
+                heapq.heappush(minHeap,[scores[i],getTitleFromIndex(i)])
+    minHeap.sort(reverse=True)
+    for movie in minHeap:
+        json.append(movie[1])
     json=",".join(json)
     return jsonify(json)
     
-
 
 app.run(debug=True)
