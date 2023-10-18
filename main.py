@@ -6,21 +6,25 @@ import numpy as np
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 import heapq
-import asyncio
 load_dotenv()
 
-api_key = os.getenv('API_KEY')
 app=Flask(__name__)
 app.config["SECRET_KEY"]=os.getenv("SECRET_KEY")
-
-movie=""
-pSource=""
-topMovies=["sinister","shrek","cars"]
+api_key = os.getenv('API_KEY')
 
 
 df=pd.read_csv("movie_dataset.csv")
 cos_similarity=pd.read_csv("cosine_similarity.csv",index_col=None,header=None)
 cos_similarity=cos_similarity.values
+
+def get_movie_poster(movie):
+    url=f"https://api.themoviedb.org/3/search/movie?api_key={api_key}&query={movie}"
+    response=requests.get(url)
+    if response.status_code==200:
+        data=response.json()
+        if data["results"]:
+            path=data["results"][0]["poster_path"]
+            return "https://image.tmdb.org/t/p/"+"w200"+path
 
 def getTitleFromIndex(index):
     result=df[df.index==index]["title"].values
@@ -36,34 +40,22 @@ def getIndexFromTitle(title):
     else:
         return "title not found"
 
-def getPoster(movie):
-    url=f"https://api.themoviedb.org/3/search/movie?api_key={api_key}&query={movie}"
-    response=requests.get(url)
-    if response.status_code==200:
-        data=response.json()
-        if data["results"]:
-            path=data["results"][0]["poster_path"]
-            return "https://image.tmdb.org/t/p/"+"w200"+path
-
-
-for i in range(len(topMovies)):
-    url=getPoster(topMovies[i])
-    topMovies[i]=url
-
 @app.route("/")
 def home():
-    return render_template('home.html',movies=topMovies)
+    top_movies=["sinister","shrek","cars"]
+    top_movies=[get_movie_poster(title) for title in top_movies]
+    return render_template('home.html',movies=top_movies)
 
 @app.route("/recommendations/")
 def recommend():
-    return render_template('home.html',movies=topMovies)
+    pass
 
 @app.route("/result/", methods=['POST'])
 def getResult():
-    result=request.form.get("movie")
-    movie=result
+    movie=request.form.get("movie")
     url=f"https://api.themoviedb.org/3/search/movie?api_key={api_key}&query={movie}"
     response=requests.get(url)
+
     if response.status_code==200:
         data=response.json()
         if data["results"]:
@@ -72,6 +64,7 @@ def getResult():
             size="w200"
             complete=f"{base_url}{size}{poster_path}"
             session['pSource']=complete
+
     return redirect(url_for('home'))
 
 @app.route("/search/",methods=["GET","POST"])
@@ -83,8 +76,8 @@ def getSimilar():
     movie=request.form.get("movie")
     idx=getIndexFromTitle(movie)
     scores=cos_similarity[idx]
-    minHeap=[]
-    json=list()
+    minHeap,json=[],[]
+
     for i in range(len(scores)):
         if int(scores[i])==1:
             continue
@@ -100,5 +93,5 @@ def getSimilar():
     json=",".join(json)
     return jsonify(json)
     
-
-app.run(debug=True)
+if __name__=="__main__":
+    app.run(debug=True) 
