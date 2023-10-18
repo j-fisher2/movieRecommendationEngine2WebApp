@@ -6,6 +6,7 @@ import numpy as np
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 import heapq
+import asyncio
 load_dotenv()
 
 api_key = os.getenv('API_KEY')
@@ -43,6 +44,7 @@ def getPoster(movie):
         if data["results"]:
             path=data["results"][0]["poster_path"]
             return "https://image.tmdb.org/t/p/"+"w200"+path
+
 
 for i in range(len(topMovies)):
     url=getPoster(topMovies[i])
