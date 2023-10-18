@@ -71,7 +71,7 @@ def getResult():
 def searchPage():
     return render_template("search.html")
 
-@app.route("/search/results",methods=["POST"])
+@app.route("/search/results/",methods=["POST"])
 def getSimilar():
     movie=request.form.get("movie")
     idx=getIndexFromTitle(movie)
