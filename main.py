@@ -56,7 +56,8 @@ class Cache:
         target_node=self.cache[key]
         if self.tail==target_node:
             self.tail=self.tail.next
-            self.tail.prev=None
+            if self.tail:
+                self.tail.prev=None 
             self.setMRU(target_node)
             return
         if self.head==target_node:
@@ -64,6 +65,7 @@ class Cache:
         prev,next=target_node.prev,target_node.next
         prev.next=next
         next.prev=prev
+        self.setMRU(target_node)
     def setMRU(self,node):
         self.head.next=node
         node.prev=self.head
@@ -73,6 +75,7 @@ class Cache:
     
 def get_movie_poster(movie):
     if r.exists(movie):
+        print("redis cache hit")
         return r.get(movie)
     url=f"https://api.themoviedb.org/3/search/movie?api_key={api_key}&query={movie}"
     response=requests.get(url)
@@ -107,11 +110,9 @@ def getIndexFromTitle(title):
     else:
         return "title not found"
 
-@app.route("/")
+@app.route("/poster")
 def home():
-    top_movies=["sinister","shrek","cars"]
-    top_movies=[get_movie_poster(title) for title in top_movies]
-    return render_template('home.html',movies=top_movies)
+    return render_template('home.html')
 
 @app.route("/recommendations/")
 def recommend():
@@ -120,6 +121,10 @@ def recommend():
 @app.route("/result/", methods=['POST'])
 def getResult():
     movie=request.form.get("movie")
+    if r.exists(movie):
+        print("redis cache hit")
+        session['pSource']=r.get(movie)
+        return redirect(url_for('home'))
     url=f"https://api.themoviedb.org/3/search/movie?api_key={api_key}&query={movie}"
     response=requests.get(url)
 
@@ -131,6 +136,7 @@ def getResult():
             size="w200"
             complete=f"{base_url}{size}{poster_path}"
             session['pSource']=complete
+            r.set(movie,complete)
 
     return redirect(url_for('home'))
 
@@ -155,10 +161,9 @@ def getSimilar():
                 heapq.heappop(minHeap)
                 heapq.heappush(minHeap,[scores[i],getTitleFromIndex(i)])
     minHeap.sort(reverse=True)
-    for movie in minHeap:
-        json.append(movie[1])
-    json=",".join(json)
-    return jsonify(json)
+    for i in range(len(minHeap)):
+        session['searchRec'+str(i)]=get_movie_poster(minHeap[i][1])
+    return render_template('recommendations.html')
 
 indexCache=Cache(1000)
 titleCache=Cache(1000)
