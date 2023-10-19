@@ -4,15 +4,33 @@
     font-family:'Netflix font';
   }
   
-  #posterContainer{
-    margin:100px;
-    display:inline-block;
-  }
-  #searchButton{
-    margin:10px;
-  }
-  .navbar-brand {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-  }
+#posterContainer{
+  margin:100px;
+  display:inline-block;
+}
+#searchButton{
+  margin:10px;
+}
+.navbar-brand {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+body {
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-around;
+}
+
+.image-container {
+    width: 20%;
+    margin: 1%;
+}
+
+.image-container img {
+    width: 100%;
+    height: auto;
+    display: block;
+}
