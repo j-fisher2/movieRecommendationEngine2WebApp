@@ -6,12 +6,13 @@ import numpy as np
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 import heapq
+import redis
 load_dotenv()
 
 app=Flask(__name__)
 app.config["SECRET_KEY"]=os.getenv("SECRET_KEY")
 api_key = os.getenv('API_KEY')
-
+r=redis.Redis(host='localhost',port=os.getenv("REDIS_PORT"),decode_responses=True)
 
 df=pd.read_csv("movie_dataset.csv")
 cos_similarity=pd.read_csv("cosine_similarity.csv",index_col=None,header=None)
@@ -50,19 +51,42 @@ class Cache:
         self.tail=self.tail.next
         self.tail.prev=None
         del self.cache[LRU.key]
-
-
+    
+    def update(self,key):
+        target_node=self.cache[key]
+        if self.tail==target_node:
+            self.tail=self.tail.next
+            self.tail.prev=None
+            self.setMRU(target_node)
+            return
+        if self.head==target_node:
+            return 
+        prev,next=target_node.prev,target_node.next
+        prev.next=next
+        next.prev=prev
+    def setMRU(self,node):
+        self.head.next=node
+        node.prev=self.head
+        self.head=node
+        self.head.next=None 
+        
+    
 def get_movie_poster(movie):
+    if r.exists(movie):
+        return r.get(movie)
     url=f"https://api.themoviedb.org/3/search/movie?api_key={api_key}&query={movie}"
     response=requests.get(url)
     if response.status_code==200:
         data=response.json()
         if data["results"]:
             path=data["results"][0]["poster_path"]
-            return "https://image.tmdb.org/t/p/"+"w200"+path
+            complete_path="https://image.tmdb.org/t/p/"+"w200"+path
+            r.set(movie,complete_path)
+    return r.get(movie)
 
 def getTitleFromIndex(index):
     if index in indexCache.cache:
+        indexCache.update(index)
         return indexCache.cache[index].value
     result=df[df.index==index]["title"].values
     if len(result):
@@ -74,6 +98,7 @@ def getTitleFromIndex(index):
 def getIndexFromTitle(title):
     if title in titleCache.cache:
         print("cache hit")
+        titleCache.update(title)
         return titleCache.cache[title].value
     result=df[df.title==title]["index"].values
     if len(result):
@@ -135,8 +160,8 @@ def getSimilar():
     json=",".join(json)
     return jsonify(json)
 
-indexCache=Cache(100)
-titleCache=Cache(100)
+indexCache=Cache(1000)
+titleCache=Cache(1000)
     
 if __name__=="__main__":
     app.run(debug=True)
