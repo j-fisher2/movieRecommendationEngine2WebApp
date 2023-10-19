@@ -17,6 +17,41 @@ df=pd.read_csv("movie_dataset.csv")
 cos_similarity=pd.read_csv("cosine_similarity.csv",index_col=None,header=None)
 cos_similarity=cos_similarity.values
 
+class Node:
+    def __init__(self,key,value):
+        self.key=key
+        self.next=None
+        self.prev=None
+        self.value=value
+
+class Cache:
+    def __init__(self,cap):
+        self.capacity=cap
+        self.cache={}
+        self.head=None
+        self.tail=None
+
+    def insert(self,key,value):
+        if key in self.cache:
+            return
+        if len(self.cache)==self.capacity:
+            self.pop()
+        newNode=Node(key,value)
+        self.cache[key]=newNode
+        if len(self.cache)==1:
+            self.head=self.tail=newNode
+            return
+        self.head.next=newNode
+        newNode.prev=self.head
+        self.head=self.head.next
+    
+    def pop(self):
+        LRU=self.tail
+        self.tail=self.tail.next
+        self.tail.prev=None
+        del self.cache[LRU.key]
+
+
 def get_movie_poster(movie):
     url=f"https://api.themoviedb.org/3/search/movie?api_key={api_key}&query={movie}"
     response=requests.get(url)
@@ -34,8 +69,12 @@ def getTitleFromIndex(index):
         return "title not found"
 
 def getIndexFromTitle(title):
+    if title in cache.cache:
+        print("cache hit")
+        return cache.cache[title].value
     result=df[df.title==title]["index"].values
     if len(result):
+        cache.insert(title,result[0])
         return result[0]
     else:
         return "title not found"
@@ -92,6 +131,8 @@ def getSimilar():
         json.append(movie[1])
     json=",".join(json)
     return jsonify(json)
+
+cache=Cache(100)
     
 if __name__=="__main__":
     app.run(debug=True) 
