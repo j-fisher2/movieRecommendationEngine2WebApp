@@ -62,19 +62,22 @@ def get_movie_poster(movie):
             return "https://image.tmdb.org/t/p/"+"w200"+path
 
 def getTitleFromIndex(index):
+    if index in indexCache.cache:
+        return indexCache.cache[index].value
     result=df[df.index==index]["title"].values
     if len(result):
+        indexCache.insert(index,result[0])
         return result[0]
     else:
         return "title not found"
 
 def getIndexFromTitle(title):
-    if title in cache.cache:
+    if title in titleCache.cache:
         print("cache hit")
-        return cache.cache[title].value
+        return titleCache.cache[title].value
     result=df[df.title==title]["index"].values
     if len(result):
-        cache.insert(title,result[0])
+        titleCache.insert(title,result[0])
         return result[0]
     else:
         return "title not found"
@@ -132,7 +135,8 @@ def getSimilar():
     json=",".join(json)
     return jsonify(json)
 
-cache=Cache(100)
+indexCache=Cache(100)
+titleCache=Cache(100)
     
 if __name__=="__main__":
-    app.run(debug=True) 
+    app.run(debug=True)
