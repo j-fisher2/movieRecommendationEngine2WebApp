@@ -1,0 +1,74 @@
+{%extends 'base.html'%}
+{%block title%}Movie Recommender{%endblock%}
+{%block content%}
+<div class="App">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossOrigin="anonymous">
+    </link>
+    <script src="{{url_for('static',filename='js/main.js')}}"></script>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+      <div class="mx-auto">
+        <h1 class="navbar-brand" style="font-size:2rem">Movies.io</h1>
+      </div>
+    </nav>
+    <div id="posterContainer">
+      <img id="curPoster" src={{session.searchRec0}}></img>
+    </div>
+    <div id="posterContainer">
+      <img id="curPoster" src={{session.searchRec1}}></img>
+    </div>
+    <div id="posterContainer">
+      <img id="curPoster" src={{session.searchRec2}}></img>
+    </div>
+    <div id="posterContainer">
+        <img id="curPoster" src={{session.searchRec3}}></img>
+    </div>
+    <div id="posterContainer">
+      <img id="curPoster" src={{session.searchRec4}}></img>
+    </div>
+    <div id="posterContainer">
+        <img id="curPoster" src={{session.searchRec5}}></img>
+    </div>
+    <div id="posterContainer">
+        <img id="curPoster" src={{session.searchRec6}}></img>
+    </div>
+    <div id="posterContainer">
+        <img id="curPoster" src={{session.searchRec7}}></img>
+    </div>
+    <div id="posterContainer">
+        <img id="curPoster" src={{session.searchRec8}}></img>
+    </div>
+    <div id="posterContainer">
+        <img id="curPoster" src={{session.searchRec9}}></img>
+    </div>
+    <div id="posterContainer">
+        <img id="curPoster" src={{session.searchRec10}}></img>
+    </div>
+    <div id="posterContainer">
+        <img id="curPoster" src={{session.searchRec11}}></img>
+    </div>
+    <div id="posterContainer">
+        <img id="curPoster" src={{session.searchRec12}}></img>
+    </div>
+    <div id="posterContainer">
+        <img id="curPoster" src={{session.searchRec13}}></img>
+    </div>
+    <div id="posterContainer">
+        <img id="curPoster" src={{session.searchRec14}}></img>
+    </div>
+    <div id="posterContainer">
+        <img id="curPoster" src={{session.searchRec15}}></img>
+    </div>
+    <div id="posterContainer">
+        <img id="curPoster" src={{session.searchRec16}}></img>
+    </div>
+    <div id="posterContainer">
+        <img id="curPoster" src={{session.searchRec17}}></img>
+    </div>
+    <div id="posterContainer">
+        <img id="curPoster" src={{session.searchRec18}}></img>
+    </div>
+    <div id="posterContainer">
+        <img id="curPoster" src={{session.searchRec19}}></img>
+    </div>
+</div>
+{%endblock%}
