@@ -121,22 +121,8 @@ def recommend():
 @app.route("/result/", methods=['POST'])
 def getResult():
     movie=request.form.get("movie")
-    if r.exists(movie):
-        print("redis cache hit")
-        session['pSource']=r.get(movie)
-        return redirect(url_for('home'))
-    url=f"https://api.themoviedb.org/3/search/movie?api_key={api_key}&query={movie}"
-    response=requests.get(url)
-
-    if response.status_code==200:
-        data=response.json()
-        if data["results"]:
-            poster_path=data["results"][0]["poster_path"]
-            base_url = "https://image.tmdb.org/t/p/"
-            size="w200"
-            complete=f"{base_url}{size}{poster_path}"
-            session['pSource']=complete
-            r.set(movie,complete)
+    poster=get_movie_poster(movie)
+    session['pSource']=r.get(movie)
 
     return redirect(url_for('home'))
 
