@@ -110,9 +110,10 @@ def getIndexFromTitle(title):
     else:
         return "title not found"
 
-@app.route("/poster")
-def home():
-    return render_template('home.html')
+@app.route("/poster/<movie>")
+def home(movie):
+    m=r.get(movie)
+    return render_template('home.html',movie=m)
 
 @app.route("/recommendations/")
 def recommend():
@@ -122,15 +123,14 @@ def recommend():
 def getResult():
     movie=request.form.get("movie")
     poster=get_movie_poster(movie)
-    session['pSource']=r.get(movie)
 
-    return redirect(url_for('home'))
+    return redirect(url_for('home',movie=movie))
 
 @app.route("/search/",methods=["GET","POST"])
 def searchPage():
     return render_template("search.html")
 
-@app.route("/search/results/",methods=["POST"])
+@app.route("/search/recommendations/",methods=["POST"])
 def getSimilar():
     movie=request.form.get("movie")
     idx=getIndexFromTitle(movie)
@@ -147,9 +147,8 @@ def getSimilar():
                 heapq.heappop(minHeap)
                 heapq.heappush(minHeap,[scores[i],getTitleFromIndex(i)])
     minHeap.sort(reverse=True)
-    for i in range(len(minHeap)):
-        session['searchRec'+str(i)]=get_movie_poster(minHeap[i][1])
-    return render_template('recommendations.html')
+    minHeap=[[get_movie_poster(i[1]),i[1]] for i in minHeap]
+    return render_template('recommendations.html',sources=minHeap)
 
 indexCache=Cache(1000)
 titleCache=Cache(1000)
