@@ -1,0 +1,42 @@
+{%extends 'base.html'%}
+{%block content%}
+<head>
+    <title>Home</title>
+    <style>
+        .login-container {
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+        .button {
+            display: block;
+            width: 200px;
+            padding: 10px;
+            margin: 10px;
+            background-color: #0074d9;
+            color: white;
+            text-align: center;
+            text-decoration: none;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+        }
+    </style>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossOrigin="anonymous"/>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark" style="width:100vw; margin-bottom:20vh">
+        <div class="mx-auto">
+          <h1 class="navbar-brand" style="font-size:2rem">Movies.io</h1>
+        </div>
+    </nav>
+    <div class="login-container">
+        <a href="" class="button">Sign Up</a>
+        <a href="" class="button">Login</a>
+        <a href="">Skip</a>
+    </div>
+</body>
+
+{%endblock%}
