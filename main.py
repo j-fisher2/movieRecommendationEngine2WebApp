@@ -150,6 +150,10 @@ def getSimilar():
     minHeap=[[get_movie_poster(i[1]),i[1]] for i in minHeap]
     return render_template('recommendations.html',sources=minHeap)
 
+@app.route("/")
+def homePage():
+    return render_template('home_page.html')
+
 indexCache=Cache(1000)
 titleCache=Cache(1000)
     
