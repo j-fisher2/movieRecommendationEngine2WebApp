@@ -115,15 +115,14 @@ def home(movie):
     m=r.get(movie)
     return render_template('home.html',movie=m)
 
-@app.route("/recommendations/")
-def recommend():
-    pass
+@app.route("/poster/search/", methods=['GET'])
+def poster_search():
+    return render_template('home.html')
 
-@app.route("/result/", methods=['POST'])
-def getResult():
+@app.route("/poster/query",methods=["POST"])
+def getPoster():
     movie=request.form.get("movie")
-    poster=get_movie_poster(movie)
-
+    get_movie_poster(movie)
     return redirect(url_for('home',movie=movie))
 
 @app.route("/search/",methods=["GET","POST"])
