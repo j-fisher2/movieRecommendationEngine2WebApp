@@ -34,3 +34,6 @@ body {
     height: auto;
     display: block;
 }
+#curPoster{
+  border:1px solid black;
+}
