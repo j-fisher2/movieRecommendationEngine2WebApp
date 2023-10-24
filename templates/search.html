@@ -1,15 +1,25 @@
 {%extends 'base.html'%}
 {%block content%}
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossOrigin="anonymous">
-    </link>
-    <script src="{{url_for('static',filename='js/main.js')}}"></script>
-    <nav class="navbar navbar-expand-lg navbar-light bg-light">
-      <div class="mx-auto">
-        <h1 class="navbar-brand" style="font-size:2rem">Movies.io</h1>
-      </div>
-    </nav>
-<form method="POST" action="http://localhost:5000/search/recommendations">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossOrigin="anonymous"/>
+<script src="{{url_for('static',filename='js/main.js')}}"></script>
+<style>
+  .c-form{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding-top:10vh;
+  }
+</style>
+<div class="expand">
+  <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <div class="mx-auto">
+      <h1 class="navbar-brand" style="font-size:2rem">Movies.io</h1>
+    </div>
+  </nav>
+</div>
+<h5 style="padding-top:50px;align-items:center;display:flex;justify-content:center">Search For Similar Movies</h5>
+<form class="c-form" method="POST" action="http://localhost:5000/search/recommendations">
     <input type="text" name="movie">
-    <input type="submit" value="Recommend" class="btn btn-warning">
+    <input type="submit" value="Recommend" class="btn btn-success" style="margin-left:20px">
 </form>
 {%endblock%}
