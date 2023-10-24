@@ -137,9 +137,7 @@ def getSimilar():
     minHeap,json=[],[]
 
     for i in range(len(scores)):
-        if int(scores[i])==1:
-            continue
-        if len(minHeap)<=20:
+        if len(minHeap)<=21:
             heapq.heappush(minHeap,[scores[i],getTitleFromIndex(i)])
         else:
             if scores[i]>minHeap[0][0]:
@@ -147,7 +145,7 @@ def getSimilar():
                 heapq.heappush(minHeap,[scores[i],getTitleFromIndex(i)])
     minHeap.sort(reverse=True)
     minHeap=[[get_movie_poster(i[1]),i[1]] for i in minHeap]
-    return render_template('recommendations.html',sources=minHeap)
+    return render_template('recommendations.html',movie=movie,sources=minHeap)
 
 @app.route("/")
 def homePage():
