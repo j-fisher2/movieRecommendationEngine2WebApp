@@ -4,6 +4,7 @@
 <div class="App">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossOrigin="anonymous">
     </link>
+    <link rel="stylesheet" href="{{url_for('static',filename='css/styles.css')}}"/>
     <script src="{{url_for('static',filename='js/main.js')}}"></script>
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
       <div class="mx-auto">
@@ -92,6 +93,10 @@
     <div id="posterContainer">
         <img id="curPoster" src={{sources[19][0]}}></img>
         <h5>{{sources[19][1]}}</h5>
+    </div>
+    <div id="posterContainer">
+        <img id="curPoster" src={{sources[20][0]}}></img>
+        <h5>{{sources[20][1]}}</h5>
     </div>
 </div>
 {%endblock%}
