@@ -153,6 +153,16 @@ def getSimilar():
 def homePage():
     return render_template('home_page.html')
 
+@app.route("/signup/")
+def signupPage():
+    return render_template('signup.html')
+
+@app.route("/signup/verify/",methods=["POST"])
+def verify_signup():
+    username=request.form.get("username")
+    password=request.form.get("pass")
+    return jsonify({"username":username,"password":password})
+
 indexCache=Cache(1000)
 titleCache=Cache(1000)
     
