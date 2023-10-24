@@ -1,17 +1,15 @@
 {%extends 'base.html'%}
 {%block title%}Movie Recommender{%endblock%}
 {%block content%}
-<div class="App">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossOrigin="anonymous">
-    </link>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossOrigin="anonymous"/>
     <script src="{{url_for('static',filename='js/main.js')}}"></script>
-    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark" style="width:100vw">
       <div class="mx-auto">
         <h1 class="navbar-brand" style="font-size:2rem">Movies.io</h1>
       </div>
     </nav>
-    <h5 style="color:red">Movie Poster Search</h5>
-    <form method="POST" action="http://localhost:5000/poster/query">
+    <h5 style="padding-top:50px;align-items:center;display:flex;justify-content:center;color:red">Movie Poster Search</h5>
+    <form method="POST" action="http://localhost:5000/poster/query" class="center">
       <input type="text" id="movieInput" name="movie" placeholder="Enter a movie title"></input>
       <button type="submit" id="searchButton" class="btn btn-primary">Search</button>
     </form>
@@ -19,5 +17,4 @@
       <img id="curPoster" src={{movie}}></img>
     </div>
 
-</div>
 {%endblock%}
