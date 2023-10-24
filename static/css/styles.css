@@ -6,7 +6,9 @@
   
 #posterContainer{
   margin:100px;
-  display:inline-block;
+  display:flex;
+  align-items:center;
+  justify-content: center;
 }
 #searchButton{
   margin:10px;
@@ -36,4 +38,12 @@ body {
 }
 #curPoster{
   border:1px solid black;
+}
+.expand{
+  width:100vw;
+}
+.center{
+  display:flex;
+  align-items:center;
+  justify-content: center;
 }
