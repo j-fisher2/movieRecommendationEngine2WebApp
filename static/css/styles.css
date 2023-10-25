@@ -6,9 +6,6 @@
   
 #posterContainer{
   margin:100px;
-  display:flex;
-  align-items:center;
-  justify-content: center;
 }
 #searchButton{
   margin:10px;
@@ -29,10 +26,10 @@ body {
 .image-container {
     width: 20%;
     margin: 1%;
+    display:inline-block;
 }
 
 .image-container img {
-    width: 100%;
     height: auto;
     display: block;
 }
