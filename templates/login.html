@@ -39,17 +39,18 @@
         <div class="mx-auto">
           <h1 class="navbar-brand" style="font-size:2rem">Movies.io</h1>
         </div>
+        {% if session.user%}
+            <a>{{session.user}}</a>
+        {% endif %}
     </nav>
-    {% if session.error %}
+    {% if session.error%}
         <h6 style="color:red" class="sign-up">*{{session.error}}</h6>
-    {% endif %}
-    <h2 class="sign-up">Sign-Up</h2>
-    <form method="POST" action="http://localhost:5000/signup/verify" class="login-container">
+    {%endif%}
+    <h2 class="sign-up">Login</h2>
+    <form method="POST" action="http://localhost:5000/login/verify" class="login-container">
         <input type="text" name="username" placeholder="username">
         <br>
         <input type="password" name="pass" placeholder="password">
-        <br>
-        <input type="password" name='passverify' placeholder="confirm">
         <input type="submit" class="button">
     </form>
 </body>

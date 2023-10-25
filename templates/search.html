@@ -15,6 +15,13 @@
     <div class="mx-auto">
       <h1 class="navbar-brand" style="font-size:2rem">Movies.io</h1>
     </div>
+    {%if session.user%}
+      <a href="http://localhost:5000/home/{{session.user}}"class="nav-link">Home</a>
+      <a href="http://localhost:5000/logout"class="nav-link">Logout</a>
+      <a style="color:white">{{session.user}}</a>
+    {%else%}
+      <a href="http://localhost:5000/home/na"class="nav-link">Home</a>
+    {%endif%}
   </nav>
 </div>
 <h5 style="padding-top:50px;align-items:center;display:flex;justify-content:center">Search For Similar Movies</h5>
