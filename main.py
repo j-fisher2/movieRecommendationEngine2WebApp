@@ -1,4 +1,5 @@
 from flask import Flask, render_template, request, session, redirect, url_for, jsonify
+from flaskext.mysql import MySQL
 import requests,os
 from dotenv import load_dotenv
 import pandas as pd
@@ -11,8 +12,13 @@ load_dotenv()
 
 app=Flask(__name__)
 app.config["SECRET_KEY"]=os.getenv("SECRET_KEY")
+app.config['MYSQL_DATABASE_USER']=os.getenv("SQL_USER")
+app.config['MYSQL_DATABASE_PASSWORD']=os.getenv("SQL_PASS")
+app.config["MYSQL_DATABASE_DB"]=os.getenv("SQL_DB")
+app.config["MYSQL_DATABASE_HOST"]=os.getenv("HOST")
 api_key = os.getenv('API_KEY')
 r=redis.Redis(host='localhost',port=os.getenv("REDIS_PORT"),decode_responses=True)
+mysql=MySQL(app)
 
 df=pd.read_csv("movie_dataset.csv")
 cos_similarity=pd.read_csv("cosine_similarity.csv",index_col=None,header=None)
@@ -137,7 +143,7 @@ def getSimilar():
     minHeap,json=[],[]
 
     for i in range(len(scores)):
-        if len(minHeap)<=21:
+        if len(minHeap)<21:
             heapq.heappush(minHeap,[scores[i],getTitleFromIndex(i)])
         else:
             if scores[i]>minHeap[0][0]:
@@ -151,15 +157,81 @@ def getSimilar():
 def homePage():
     return render_template('home_page.html')
 
+@app.route("/home/<user>")
+def user_home(user):
+    return render_template('user_home.html')
+
+@app.route("/home/na")
+def non_user_home():
+    return render_template('user_home.html')
+
+@app.route("/login/")
+def login():
+    return render_template('login.html')
+
+@app.route("/login/verify",methods=["POST"])
+def verify_login():
+    username = request.form.get("username")
+    passw = request.form.get("pass")
+
+    query = "SELECT * FROM users WHERE username=%s AND password=%s"
+    cursor = mysql.get_db().cursor()
+    values = (username, passw)
+    cursor.execute(query,values)
+    result=cursor.fetchone()
+    if result:
+        if 'error' in session.keys():
+            session.pop('error')
+        session['user']=username
+        return redirect(url_for('user_home',user=username))
+    else:
+        session['error']="invalid login credentials"
+        return redirect(url_for('login'))
+
+@app.route("/logout",methods=["GET"])
+def logout():
+    session.pop('user')
+    return redirect(url_for('homePage'))
+
 @app.route("/signup/")
 def signupPage():
     return render_template('signup.html')
 
+
 @app.route("/signup/verify/",methods=["POST"])
 def verify_signup():
-    username=request.form.get("username")
-    password=request.form.get("pass")
-    return jsonify({"username":username,"password":password})
+    username = request.form.get("username")
+    password = request.form.get("pass")
+    password_confirm=request.form.get("passverify")
+    if password!=password_confirm:
+        session['error']="password and password confirmation must match"
+        return redirect(url_for('signupPage'))
+    cursor = mysql.get_db().cursor()
+
+    query = "SELECT * FROM users WHERE username=%s"
+    try:
+        cursor.execute(query, (username,))
+        result = cursor.fetchone()  # Fetch one row
+        if result:
+            session['error']="Username already exists"
+            return redirect(url_for('signupPage'))
+        else:
+            query = "INSERT INTO users (username, password) VALUES (%s, %s)"
+            values = (username, password)
+            try:
+                cursor.execute(query, values)
+                mysql.get_db().commit()  # Commit the transaction
+            except Exception as e:
+                print(f"Error: {e}")
+                mysql.get_db().rollback()  # Rollback the transaction in case of an error
+            cursor.close()
+            session['user']=username
+            if 'error' in session.keys():
+                session.pop('error')
+            return redirect(url_for('user_home',user=username))
+    except Exception as e:
+        return jsonify("error occurred")
+
 
 indexCache=Cache(1000)
 titleCache=Cache(1000)
