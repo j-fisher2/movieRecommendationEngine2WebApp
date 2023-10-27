@@ -39,6 +39,19 @@ with open(file, 'r',encoding='utf-8') as f:
 
         # Execute the query with the provided values
         cursor.execute(query, values)
+    
+    for row in datareader:
+        if row[0] == 'index':
+            continue
+
+        date=row[12]
+        if not len(date):
+            continue
+        idx=row[0]
+        values=(date,idx)
+        query="UPDATE movies SET release_date=%s WHERE id=%s"
+        cursor.execute(query, values)
+
 
 # Commit the changes to the database
 connection.commit()
