@@ -40,6 +40,7 @@ with open(file, 'r',encoding='utf-8') as f:
         # Execute the query with the provided values
         cursor.execute(query, values)
     
+    #added date column to database table between loops
     for row in datareader:
         if row[0] == 'index':
             continue
