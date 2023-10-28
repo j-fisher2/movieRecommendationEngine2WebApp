@@ -80,6 +80,7 @@ class Cache:
         
     
 def get_movie_poster(movie):
+    print(movie)
     if r.exists(movie):
         print("redis cache hit")
         return r.get(movie)
@@ -97,10 +98,14 @@ def getTitleFromIndex(index):
     if index in indexCache.cache:
         indexCache.update(index)
         return indexCache.cache[index].value
-    result=df[df.index==index]["title"].values
-    if len(result):
-        indexCache.insert(index,result[0])
-        return result[0]
+    query="SELECT title FROM movies WHERE id=%s"
+    values=(index,)
+    cursor=mysql.get_db().cursor()
+    cursor.execute(query,values)
+    res=cursor.fetchone()
+    if res:
+        indexCache.insert(index,res[0])
+        return res[0].lower()
     else:
         return "title not found"
 
@@ -109,8 +114,12 @@ def getIndexFromTitle(title):
         print("cache hit")
         titleCache.update(title)
         return titleCache.cache[title].value
-    result=df[df.title==title]["index"].values
-    if len(result):
+    query="SELECT id FROM movies WHERE LOWER(title) =%s"
+    values=(title,)
+    cursor=mysql.get_db().cursor()
+    cursor.execute(query,values)
+    result=cursor.fetchone()
+    if result:
         titleCache.insert(title,result[0])
         return result[0]
     else:
@@ -119,7 +128,7 @@ def getIndexFromTitle(title):
 def get_top_recommendations(movie,idx,collab_recs=False):
     scores=cos_similarity[idx]
     minHeap,json=[],[]
-    threshold=21 if not collab_recs else 10
+    threshold=21 if not collab_recs else 4
     for i in range(len(scores)):
         if len(minHeap)<threshold:
             heapq.heappush(minHeap,[scores[i],getTitleFromIndex(i)])
@@ -128,11 +137,12 @@ def get_top_recommendations(movie,idx,collab_recs=False):
                 heapq.heappop(minHeap)
                 heapq.heappush(minHeap,[scores[i],getTitleFromIndex(i)])
     minHeap.sort(reverse=True)
-    minHeap=[[get_movie_poster(i[1]),i[1]] for i in minHeap]
+    minHeap=[[get_movie_poster(i[1].lower()),i[1].lower()] for i in minHeap]
     return minHeap
 
 def generate_list():
-    titles=['Interstellar','Guardians of the Galaxy','Monsters University','Toy Story','The Avengers','Pearl Harbor','The Perfect Storm','300: Rise of an Empire','The Tourist','The Wolf of Wall Street','Divergent','The Hangover','Bedtime Stories','Grown Ups','The Lion King','Braveheart','The Vow','American Sniper','The Dictator','Marley & Me','Wedding Crashers','Lilo and Stitch']
+    titles=['Interstellar','Guardians of the Galaxy','Monsters University','Toy Story','The Avengers','Pearl Harbor','The Perfect Storm','300: Rise of an Empire','The Tourist','The Wolf of Wall Street','Divergent','The Hangover','Bedtime Stories','Grown Ups','The Lion King','Braveheart','The Vow','American Sniper','The Dictator','Marley & Me','Lilo & Stitch']
+    titles=[title.lower() for title in titles]
     return titles
 
 @app.route("/poster/<movie>")
@@ -146,7 +156,7 @@ def poster_search():
 
 @app.route("/poster/query",methods=["POST"])
 def getPoster():
-    movie=request.form.get("movie")
+    movie=request.form.get("movie").lower()
     get_movie_poster(movie)
     return redirect(url_for('home',movie=movie))
 
@@ -156,7 +166,7 @@ def searchPage():
 
 @app.route("/search/recommendations/",methods=["POST"])
 def getSimilar():
-    movie=request.form.get("movie")
+    movie=request.form.get("movie").lower()
     idx=getIndexFromTitle(movie)
     minHeap=get_top_recommendations(movie,idx)
     
@@ -169,7 +179,7 @@ def homePage():
 @app.route("/home/<user>")
 def user_home(user):
     top_movies=[]
-    query="SELECT username,movie_id,movie_title FROM users JOIN movie_likes ON users.user_id=movie_likes.user_id WHERE users.username=%s"
+    query="SELECT username,movie_id,LOWEr(movie_title) FROM users JOIN movie_likes ON users.user_id=movie_likes.user_id WHERE users.username=%s"
     values=(user)
     cursor = mysql.get_db().cursor()
     cursor.execute(query,values)
@@ -177,6 +187,7 @@ def user_home(user):
     if result:
         count=0
         for username,movie_id, movie_title in result:
+            movie_title=movie_title.lower()
             min_heap=get_top_recommendations(movie_title,movie_id,True)
             seen=set()
             for val in min_heap:
@@ -204,6 +215,7 @@ def extract_movies(user):
     
     query1="INSERT INTO movie_likes(user_id,movie_id,movie_title) VALUES(%s,%s,%s)"
     for movie in checked_values:
+        movie=movie.lower()
         movie_id=getIndexFromTitle(movie)
         values=(id,movie_id,movie)
         cursor.execute(query1,values)
