@@ -23,7 +23,7 @@
         <img src="{{sources[0][0]}}"/>
     </div>
     {% for source in sources%}
-        {%if source[1]!=movie%}
+        {%if source[1].lower()!=movie.lower()%}
             <div class="image-container">
                 <img src="{{source[0]}}">
                 <p>{{source[1]}}</p>
