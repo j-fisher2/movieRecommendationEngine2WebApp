@@ -116,6 +116,25 @@ def getIndexFromTitle(title):
     else:
         return "title not found"
 
+def get_top_recommendations(movie,idx,collab_recs=False):
+    scores=cos_similarity[idx]
+    minHeap,json=[],[]
+    threshold=21 if not collab_recs else 10
+    for i in range(len(scores)):
+        if len(minHeap)<threshold:
+            heapq.heappush(minHeap,[scores[i],getTitleFromIndex(i)])
+        else:
+            if scores[i]>minHeap[0][0]:
+                heapq.heappop(minHeap)
+                heapq.heappush(minHeap,[scores[i],getTitleFromIndex(i)])
+    minHeap.sort(reverse=True)
+    minHeap=[[get_movie_poster(i[1]),i[1]] for i in minHeap]
+    return minHeap
+
+def generate_list():
+    titles=['Interstellar','Guardians of the Galaxy','Monsters University','Toy Story','The Avengers','Pearl Harbor','The Perfect Storm','300: Rise of an Empire','The Tourist','The Wolf of Wall Street','Divergent','The Hangover','Bedtime Stories','Grown Ups','The Lion King','Braveheart','The Vow','American Sniper','The Dictator','Marley & Me','Wedding Crashers','Lilo and Stitch']
+    return titles
+
 @app.route("/poster/<movie>")
 def home(movie):
     m=r.get(movie)
@@ -139,18 +158,8 @@ def searchPage():
 def getSimilar():
     movie=request.form.get("movie")
     idx=getIndexFromTitle(movie)
-    scores=cos_similarity[idx]
-    minHeap,json=[],[]
-
-    for i in range(len(scores)):
-        if len(minHeap)<21:
-            heapq.heappush(minHeap,[scores[i],getTitleFromIndex(i)])
-        else:
-            if scores[i]>minHeap[0][0]:
-                heapq.heappop(minHeap)
-                heapq.heappush(minHeap,[scores[i],getTitleFromIndex(i)])
-    minHeap.sort(reverse=True)
-    minHeap=[[get_movie_poster(i[1]),i[1]] for i in minHeap]
+    minHeap=get_top_recommendations(movie,idx)
+    
     return render_template('recommendations.html',movie=movie,sources=minHeap)
 
 @app.route("/")
@@ -159,7 +168,47 @@ def homePage():
 
 @app.route("/home/<user>")
 def user_home(user):
-    return render_template('user_home.html')
+    top_movies=[]
+    query="SELECT username,movie_id,movie_title FROM users JOIN movie_likes ON users.user_id=movie_likes.user_id WHERE users.username=%s"
+    values=(user)
+    cursor = mysql.get_db().cursor()
+    cursor.execute(query,values)
+    result=cursor.fetchall()
+    if result:
+        count=0
+        for username,movie_id, movie_title in result:
+            min_heap=get_top_recommendations(movie_title,movie_id,True)
+            seen=set()
+            for val in min_heap:
+                if val[1] not in seen and val[0]:
+                    top_movies.append(val)
+                    seen.add(val[1])
+        return render_template('user_home.html',top_movies=top_movies[1:21])
+    else:
+        return redirect(url_for('like_movies',user=user))
+
+@app.route('/like_movies/<user>')
+def like_movies(user):
+    movies=generate_list()
+    movies=[[get_movie_poster(movie),movie] for movie in movies]
+    return render_template('like_movies.html',sources=movies)
+
+@app.route('/initial-liked-movies/<user>',methods=["POST"])
+def extract_movies(user):
+    checked_values=request.form.getlist('checkboxes')
+    query="SELECT user_id FROM users WHERE username=%s"
+    values=(user,)
+    cursor=mysql.get_db().cursor()
+    cursor.execute(query,values)
+    id=cursor.fetchone()[0]
+    
+    query1="INSERT INTO movie_likes(user_id,movie_id,movie_title) VALUES(%s,%s,%s)"
+    for movie in checked_values:
+        movie_id=getIndexFromTitle(movie)
+        values=(id,movie_id,movie)
+        cursor.execute(query1,values)
+        mysql.get_db().commit()
+    return redirect(url_for('user_home',user=user))
 
 @app.route("/home/na")
 def non_user_home():
