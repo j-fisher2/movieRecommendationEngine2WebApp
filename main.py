@@ -186,11 +186,18 @@ def user_home(user):
     result=cursor.fetchall()
     if result:
         count=0
+        if r.exists(user):
+            topMovies=r.lrange(user,0,-1)
+            movie_list=[]
+            for movie in topMovies:
+                movie_list.append([get_movie_poster(movie.lower()),movie])
+            return render_template('user_home.html',top_movies=movie_list)
         for username,movie_id, movie_title in result:
             movie_title=movie_title.lower()
             min_heap=get_top_recommendations(movie_title,movie_id,True)
             seen=set()
             for val in min_heap:
+                r.rpush(user,val[1])
                 if val[1] not in seen and val[0]:
                     top_movies.append(val)
                     seen.add(val[1])
