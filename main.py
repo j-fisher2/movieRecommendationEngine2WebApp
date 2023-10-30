@@ -105,7 +105,7 @@ def getTitleFromIndex(index):
     res=cursor.fetchone()
     if res:
         indexCache.insert(index,res[0])
-        return res[0].lower()
+        return res[0]
     else:
         return "title not found"
 
@@ -137,8 +137,18 @@ def get_top_recommendations(movie,idx,collab_recs=False):
                 heapq.heappop(minHeap)
                 heapq.heappush(minHeap,[scores[i],getTitleFromIndex(i)])
     minHeap.sort(reverse=True)
-    minHeap=[[get_movie_poster(i[1].lower()),i[1].lower()] for i in minHeap]
+    minHeap=[[get_movie_poster(i[1].lower()),i[1]] for i in minHeap]
     return minHeap
+
+def get_proper_title(lower_title):
+    query="SELECT title from movies WHERE LOWER(title)=%s"
+    values=(lower_title,)
+    cursor=mysql.get_db().cursor()
+    cursor.execute(query,values)
+    res=cursor.fetchone()
+    if res:
+        return res[0]
+    return ""
 
 def generate_list():
     titles=['Interstellar','Guardians of the Galaxy','Monsters University','Toy Story','The Avengers','Pearl Harbor','The Perfect Storm','300: Rise of an Empire','The Tourist','The Wolf of Wall Street','Divergent','The Hangover','Bedtime Stories','Grown Ups','The Lion King','Braveheart','The Vow','American Sniper','The Dictator','Marley & Me','Lilo & Stitch']
@@ -179,7 +189,7 @@ def homePage():
 @app.route("/home/<user>")
 def user_home(user):
     top_movies=[]
-    query="SELECT username,movie_id,LOWEr(movie_title) FROM users JOIN movie_likes ON users.user_id=movie_likes.user_id WHERE users.username=%s"
+    query="SELECT username,movie_id,LOWER(movie_title) FROM users JOIN movie_likes ON users.user_id=movie_likes.user_id WHERE users.username=%s"
     values=(user)
     cursor = mysql.get_db().cursor()
     cursor.execute(query,values)
@@ -190,7 +200,7 @@ def user_home(user):
             topMovies=r.lrange(user,0,-1)
             movie_list=[]
             for movie in topMovies:
-                movie_list.append([get_movie_poster(movie.lower()),movie])
+                movie_list.append([get_movie_poster(movie.lower()),get_proper_title(movie)])
             return render_template('user_home.html',top_movies=movie_list)
         for username,movie_id, movie_title in result:
             movie_title=movie_title.lower()
@@ -199,6 +209,7 @@ def user_home(user):
             for val in min_heap:
                 r.rpush(user,val[1])
                 if val[1] not in seen and val[0]:
+                    val[1]=get_proper_title(val[1])
                     top_movies.append(val)
                     seen.add(val[1])
         return render_template('user_home.html',top_movies=top_movies[1:21])
