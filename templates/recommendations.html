@@ -6,14 +6,14 @@
     <script src="{{url_for('static', filename='js/main.js')}}"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossOrigin="anonymous"/>
     <nav style="width: 100vw;" class="navbar navbar-expand-lg navbar-dark bg-dark">
-        <div class="mx-auto">
-            <h1 class="navbar-brand" style="font-size: 2rem">Movies.io</h1>
+        <div class="mx-auto d-flex" style="text-align:center">
+            <h1 class="navbar-brand" style="font-size: 2rem; margin: 0 auto;text-align:center">Movies.io</h1>
         </div>
         {% if session.user%}
             <a href="http://localhost:5000/home/{{session.user}}">Home</a>
             <a style="color:white;margin:10px">{{session.user}}</a>
         {%else%}
-            <a href="http://localhost:5000/home/na">Home</a>
+            <a href="http://localhost:5000/home/na" style="margin:0">Home</a>
         {%endif%}
     </nav>
     <a href="http://localhost:5000/search">Search Again</a>
