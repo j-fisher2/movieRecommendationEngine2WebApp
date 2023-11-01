@@ -275,7 +275,28 @@ def logout():
 @app.route("/like-movie",methods=["POST"])
 def like_movie():
     movie=request.form.get("movie")
-    return jsonify("you liked "+movie)
+    query1="SELECT id,title FROM movies WHERE LOWER(title)=%s"
+    values=(movie,)
+    cursor=mysql.get_db().cursor()
+    cursor.execute(query1,values)
+    tp=cursor.fetchone()
+    movie_id,movie_title=tp[0],tp[1]
+    query2="SELECT user_id FROM users WHERE username=%s"
+    values2=(session['user'],)
+    cursor.execute(query2,values2)
+    user_id=cursor.fetchone()[0]
+    query3="SELECT * FROM movie_likes WHERE user_id=%s AND movie_id=%s"
+    values3=(user_id,movie_id)
+    cursor.execute(query3,values3)
+    res=cursor.fetchone()
+    print(res)
+    if not res:
+        query="INSERT INTO movie_likes(user_id,movie_id,movie_title) VALUES(%s,%s,%s)"
+        values=(user_id,movie_id,movie_title)
+        cursor.execute(query,values)
+        mysql.get_db().commit()
+        return jsonify("you liked this movie successfully")
+    return jsonify("You have already liked this movie")
 
 @app.route("/signup/")
 def signupPage():
