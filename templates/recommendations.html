@@ -21,7 +21,7 @@
     <p>Search Results For: {{movie}}</p>
     <div id="search-container">
         <img style="margin-bottom:10px;"src="{{sources[0][0]}}"/>
-        <form method="POST" action="">
+        <form method="POST" action="http://localhost:5000/like-movie">
             <input type="hidden" name="movie" value="{{movie}}">
             <input type="submit" id="likeb" value="Like" style="background-color:#198754;border-radius: 4px; color:white">
         </form>
