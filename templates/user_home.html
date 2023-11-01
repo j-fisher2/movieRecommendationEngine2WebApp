@@ -4,9 +4,10 @@
     <script src="{{url_for('static',filename='js/main.js')}}"></script>
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark" style="width:100vw">
       <div class="mx-auto">
-        <h1 class="navbar-brand" style="font-size:2rem">Movies.io</h1>
+        <h1 class="navbar-brand" style="font-size:2rem;">Movies.io</h1>
       </div>
-      <a href="http://localhost:5000/poster/search">Movie Posters</a>
+      <a href="" class="nav-link">Explore</a>
+      <a href="http://localhost:5000/poster/search" class="nav-link">Movie Posters</a>
       <a class="nav-link" href="http://localhost:5000/search">Find Similar Movies to ___</a>
       {%if session.user%}
         <a class="nav-link" href="http://localhost:5000/logout">Logout</a>
