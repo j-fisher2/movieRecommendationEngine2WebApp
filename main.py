@@ -272,6 +272,11 @@ def logout():
     session.pop('user')
     return redirect(url_for('homePage'))
 
+@app.route("/like-movie",methods=["POST"])
+def like_movie():
+    movie=request.form.get("movie")
+    return jsonify("you liked "+movie)
+
 @app.route("/signup/")
 def signupPage():
     return render_template('signup.html')
