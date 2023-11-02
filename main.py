@@ -202,16 +202,18 @@ def user_home(user):
             for movie in topMovies:
                 movie_list.append([get_movie_poster(movie.lower()),get_proper_title(movie)])
             return render_template('user_home.html',top_movies=movie_list)
+        seen=set()
         for username,movie_id, movie_title in result:
             movie_title=movie_title.lower()
             min_heap=get_top_recommendations(movie_title,movie_id,True)
-            seen=set()
+            
             for val in min_heap:
-                r.rpush(user,val[1])
                 if val[1] not in seen and val[0]:
+                    r.rpush(user,val[1])
+                    seen.add(val[1])
                     val[1]=get_proper_title(val[1])
                     top_movies.append(val)
-                    seen.add(val[1])
+        
         return render_template('user_home.html',top_movies=top_movies[1:21])
     else:
         return redirect(url_for('like_movies',user=user))
@@ -295,8 +297,6 @@ def like_movie():
         values=(user_id,movie_id,movie_title)
         cursor.execute(query,values)
         mysql.get_db().commit()
-        return jsonify("you liked this movie successfully")
-    return jsonify("You have already liked this movie")
 
 @app.route("/signup/")
 def signupPage():
@@ -336,6 +336,11 @@ def verify_signup():
             return redirect(url_for('user_home',user=username))
     except Exception as e:
         return jsonify("error occurred")
+
+@app.route("/update-user-profile",methods=["POST"])
+def update():
+    movie=request.form.get('movie')
+    return jsonify("recieved")
 
 
 indexCache=Cache(1000)
