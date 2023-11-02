@@ -27,7 +27,6 @@ cursor=connection.cursor()
 f=open('movie_dataset.csv','r',encoding='utf-8')
 datareader=csv.reader(f)
 
-
 for row in datareader:
     if row[0]=="index":
         continue
@@ -40,16 +39,14 @@ all_genres.remove("Science")
 all_genres.remove("Fiction")
 all_genres.remove("Movie")
 
-for g in all_genres:
-    if not len(g):
-        continue
-    query="INSERT INTO genres(name) VALUES(%s)"
-    values=(g,)
-    cursor.execute(query,values)
-
-#be mindful of the order in which genres are inserted into DB, id's may vary
+#genre id pairing based on search results
 
 genre_ids={"Romance":5,"Mystery":9,"Adventure":3,"Documentary":20,"Action":13,"Western":10,"Comedy":19,"Horror":8,"History":18,"Animation":4,"TV":1,"Thriller":2,"Drama":11,"Crime":12,"Fantasy":6,"Music":17,"Foreign":15,"Science Fiction":7,"Family":14,"War":16}
+
+for genre,id in genre_ids.items():
+    query="INSERT INTO genres(genre_id,name) VALUES(%s,%s)"
+    values=(id,genre)
+    cursor.execute(query,values)
 
 for row in datareader:
     if row[0]=="index":
