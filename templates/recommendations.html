@@ -21,9 +21,9 @@
     <p>Search Results For: {{movie}}</p>
     <div id="search-container">
         <img style="margin-bottom:10px;"src="{{sources[0][0]}}"/>
-        <form method="POST" action="http://localhost:5000/like-movie">
+        <form class="movie-form">
             <input type="hidden" name="movie" value="{{movie}}">
-            <input type="submit" id="likeb" value="Like" style="background-color:#198754;border-radius: 4px; color:white">
+            <input type="button" id="like-button" value="Like" style="background-color:#198754;border-radius: 4px; color:white">
         </form>
     </div>
     {% for source in sources%}
@@ -31,9 +31,9 @@
             <div class="image-container">
                 <img src="{{source[0]}}">
                 <p>{{source[1]}}</p>
-                <form method="POST" action="http://localhost:5000/like-movie">
+                <form class="movie-form">
                     <input type="hidden" name="movie" value="{{source[1]}}">
-                    <input type="submit" value="Like" style="background-color:#198754;border-radius: 4px; color:white">
+                    <input type="button" id="like-button{{loop.index}}" value="Like" style="background-color:#198754;border-radius: 4px; color:white">
                 </form>
             </div>
         {%endif%}
