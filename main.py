@@ -24,6 +24,8 @@ df=pd.read_csv("movie_dataset.csv")
 cos_similarity=pd.read_csv("cosine_similarity.csv",index_col=None,header=None)
 cos_similarity=cos_similarity.values
 
+genre_ids={"Romance":5,"Mystery":9,"Adventure":3,"Documentary":20,"Action":13,"Western":10,"Comedy":19,"Horror":8,"History":18,"Animation":4,"TV":1,"Thriller":2,"Drama":11,"Crime":12,"Fantasy":6,"Music":17,"Foreign":15,"Science Fiction":7,"Family":14,"War":16}
+
 class Node:
     def __init__(self,key,value):
         self.key=key
@@ -183,7 +185,6 @@ def get_user_id(user):
     res=cursor.fetchall()[0]
     return res
     
-
 @app.route("/poster/<movie>")
 def home(movie):
     m=r.get(movie)
@@ -325,8 +326,8 @@ def like_movie():
         values=(user_id,movie_id,movie_title)
         cursor.execute(query,values)
         mysql.get_db().commit()
-        return "success"
-    return "already liked this movie"
+        return jsonify("success")
+    return jsonify("already liked this movie")
 
 @app.route("/signup/")
 def signupPage():
@@ -412,9 +413,12 @@ def update():
             topRecommendationCache[session['user']].add(getTitleFromIndex(rec[1]).lower())
         count+=1
     mysql.get_db().commit()
-    print(topRecommendationCache)
-    return jsonify(movie_recs[0])
+    return jsonify("success")
     
+@app.route('/explore')
+def explore_page():
+    genres=genre_ids.keys()
+    return render_template('explore.html',genres=genres)
 
 topRecommendationCache={}
 indexCache=Cache(1000)
