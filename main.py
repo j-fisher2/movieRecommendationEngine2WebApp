@@ -8,6 +8,7 @@ from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 import heapq
 import redis
+import datetime
 load_dotenv()
 
 app=Flask(__name__)
@@ -82,7 +83,6 @@ class Cache:
         
     
 def get_movie_poster(movie):
-    print(movie)
     if r.exists(movie):
         print("redis cache hit")
         return r.get(movie)
@@ -174,7 +174,6 @@ def filter_movies(top_movies):  #user first likes movies
         topRecommendationCache[session['user']].add(title.lower())
         added.add(title.lower())
     mysql.get_db().commit()
-    print(top_movies)
     return top_movies
 
 def get_user_id(user):
@@ -219,7 +218,7 @@ def homePage():
 @app.route("/home/<user>")
 def user_home(user):
     top_movies=[]
-    query="SELECT username,movie_id,LOWER(movie_title) FROM users JOIN movie_likes ON users.user_id=movie_likes.user_id WHERE users.username=%s"
+    query="SELECT username,movie_id FROM users JOIN movie_likes ON users.user_id=movie_likes.user_id WHERE users.username=%s"
     values=(user)
     cursor = mysql.get_db().cursor()
     cursor.execute(query,values)
@@ -235,8 +234,8 @@ def user_home(user):
             seen=set()
             # user has no entries in recommendations
             movie_user_likes=set([i[1] for i in result])
-            for username,movie_id, movie_title in result:
-                movie_title=movie_title.lower()
+            for username,movie_id in result:
+                movie_title=getTitleFromIndex(movie_id).lower()
                 min_heap=get_top_recommendations(movie_title,movie_id,True) #[poster,title,sim_score]
                 
                 for val in min_heap:
@@ -263,10 +262,10 @@ def extract_movies(user):
     cursor.execute(query,values)
     id=cursor.fetchone()[0]
     
-    query1="INSERT INTO movie_likes(user_id,movie_id,movie_title) VALUES(%s,%s,%s)"
+    query1="INSERT INTO movie_likes(user_id,movie_id) VALUES(%s,%s)"
     for movie in checked_values:
         movie_id=getIndexFromTitle(movie)
-        values=(id,movie_id,movie)
+        values=(id,movie_id)
         cursor.execute(query1,values)
         mysql.get_db().commit()
     return redirect(url_for('user_home',user=user))
@@ -320,10 +319,9 @@ def like_movie():
     values3=(user_id,movie_id)
     cursor.execute(query3,values3)
     res=cursor.fetchone()
-    print(res)
     if not res:
-        query="INSERT INTO movie_likes(user_id,movie_id,movie_title) VALUES(%s,%s,%s)"
-        values=(user_id,movie_id,movie_title)
+        query="INSERT INTO movie_likes(user_id,movie_id) VALUES(%s,%s)"
+        values=(user_id,movie_id)
         cursor.execute(query,values)
         mysql.get_db().commit()
         return jsonify("success")
@@ -351,8 +349,9 @@ def verify_signup():
         session['error']="Username already exists"
         return redirect(url_for('signupPage'))
     else:
-        query = "INSERT INTO users (username, password) VALUES (%s, %s)"
-        values = (username, password)
+        date_now=datetime.date.today()
+        query = "INSERT INTO users (username, password,registration_date) VALUES (%s, %s,%s)"
+        values = (username, password,date_now)
         try:
             cursor.execute(query, values)
             mysql.get_db().commit()  # Commit the transaction
@@ -404,12 +403,14 @@ def update():
     user_id=get_user_id(session['user'])
     query="INSERT INTO recommendations(user_id,movie_id,score) VALUES(%s,%s,%s)"
     #update cache
+    min_heap.sort(key=lambda x:x[0],reverse=True)
     topRecommendationCache[session['user']]=set()
     count=0
     for rec in min_heap:
         values=(user_id,rec[1],rec[0])
-        cursor.execute(query,values)
-        if count<20:
+        if int(score)!=1:
+            cursor.execute(query,values)
+        if count<20 and int(score)!=1:
             topRecommendationCache[session['user']].add(getTitleFromIndex(rec[1]).lower())
         count+=1
     mysql.get_db().commit()
