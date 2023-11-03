@@ -22,8 +22,6 @@ document.addEventListener("DOMContentLoaded", function() {
                 }).then(res => res.json()).then(data => {
                     console.log(data);
                     alert("You liked a movie")
-                }).catch(err => {
-                    console.log(err);
                 })
                 fetch('/update-user-profile',{
                     method:"POST",
