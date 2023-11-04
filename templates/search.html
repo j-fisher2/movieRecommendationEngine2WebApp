@@ -25,6 +25,9 @@
   </nav>
 </div>
 <h5 style="padding-top:50px;align-items:center;display:flex;justify-content:center">Search For Similar Movies</h5>
+{%if session.error%}
+<h6 style="padding-top:50px;align-items:center;display:flex;justify-content:center;color:red">{{session.error}}</h6>
+{%endif%}
 <form class="c-form" method="POST" action="http://localhost:5000/search/recommendations">
     <input type="text" name="movie">
     <input type="submit" value="Recommend" class="btn btn-success" style="margin-left:20px">
