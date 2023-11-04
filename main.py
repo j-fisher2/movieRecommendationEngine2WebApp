@@ -206,6 +206,18 @@ def update_search_frequency(movie_idx):
         values=(movie_idx,1)
     cursor.execute(query,values)
     mysql.get_db().commit()
+
+def get_user_likes(username,cursor):
+    user_id=get_user_id(username)
+    query="SELECT movie_id FROM movie_likes WHERE user_id=%s"
+    values=(user_id,)
+    cursor.execute(query,values)
+    res=cursor.fetchall()
+    movie_list=set()
+    for m in res:
+        movie_list.add(m[0])
+    return movie_list
+
     
 @app.route("/poster/<movie>")
 def home(movie):
@@ -404,19 +416,21 @@ def update():
     min_heap=[]
     r=cursor.fetchall()
     seen=set()
+    movies_user_has_liked=get_user_likes(user,cursor)
+    print(movies_user_has_liked)
     for row in r:
         id=row[0]
         user_id=row[1]
         movie_id=row[2]
         score=row[3]
-        if movie_id not in seen:
+        if movie_id not in seen and movie_id not in movies_user_has_liked:
             heapq.heappush(min_heap,[score,movie_id])
             seen.add(movie_id)
     movie_recs=get_top_recommendations(movie,getIndexFromTitle(movie))  #[poster,title,score]
     for movie in movie_recs:
         title=movie[1]
         score=movie[2]
-        if len(min_heap)<30 and getIndexFromTitle(title) not in seen:
+        if len(min_heap)<30 and getIndexFromTitle(title) not in seen and getIndexFromTitle(title) not in movies_user_has_liked:
             if int(score)==1:
                 continue
             heapq.heappush(min_heap,[score,getIndexFromTitle(title)])
