@@ -183,6 +183,29 @@ def get_user_id(user):
     cursor.execute(query,values)
     res=cursor.fetchall()[0]
     return res
+
+def movie_searched(idx):
+    query="SELECT * FROM search_frequency WHERE movie_id=%s"
+    values=(idx,)
+    cursor=mysql.get_db().cursor()
+    cursor.execute(query,values)
+    res=cursor.fetchone()
+    if res:
+        return True
+    return False
+
+def update_search_frequency(movie_idx):
+    cursor=mysql.get_db().cursor()
+    query=""
+    values=None
+    if movie_searched(movie_idx):
+        query="UPDATE search_frequency SET frequency=frequency+1 WHERE movie_id=%s"
+        values=(movie_idx,)
+    else:
+        query="INSERT INTO search_frequency(movie_id,frequency) VALUES(%s,%s)"
+        values=(movie_idx,1)
+    cursor.execute(query,values)
+    mysql.get_db().commit()
     
 @app.route("/poster/<movie>")
 def home(movie):
@@ -207,8 +230,13 @@ def searchPage():
 def getSimilar():
     movie=request.form.get("movie").lower()
     idx=getIndexFromTitle(movie)
+    if idx=="title not found":
+        session['error']='We\'re sorry, we could not find your movie'
+        return redirect(url_for('searchPage'))
+    if 'error' in session.keys():
+        session.pop('error')
+    update_search_frequency(idx)
     minHeap=get_top_recommendations(movie,idx)
-    
     return render_template('recommendations.html',movie=movie,sources=minHeap)
 
 @app.route("/")
