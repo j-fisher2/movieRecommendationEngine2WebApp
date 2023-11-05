@@ -17,11 +17,13 @@
       {%endif%}
     </nav>
     <div style="text-align:center;margin-bottom:50px">
-      <h2 style="color:#198754">Explore</h2>
+      <h2 style="color:white">Explore</h2>
     </div>
     {%for genre in genres%}
         <form class='bubble' id=genre-form{{loop.index}}>
-            <span id="genre-{{loop.index}}">{{genre}}</span>
+          <button class="b" id="g{{loop.index}}" style=></button>
+            <span>{{genre}}</span>
+            <input type="hidden" name="genre" value="{{genre}}">
         </form>
         
     {%endfor%}
