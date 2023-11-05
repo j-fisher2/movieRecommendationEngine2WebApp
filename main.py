@@ -92,6 +92,8 @@ def get_movie_poster(movie):
         data=response.json()
         if data["results"]:
             path=data["results"][0]["poster_path"]
+            if path==None:
+                return None
             complete_path="https://image.tmdb.org/t/p/"+"w200"+path
             r.set(movie,complete_path)
     return r.get(movie)
@@ -273,9 +275,9 @@ def user_home(user):
         else:
             seen=set()
             # user has no entries in recommendations
-            movie_user_likes=set([i[1] for i in result])
-            for username,movie_id in result:
-                movie_title=getTitleFromIndex(movie_id).lower()
+            movie_user_likes=get_user_likes(session['user'],cursor)
+            for movie_id in movie_user_likes:
+                movie_title=getTitleFromIndex(movie_id)
                 min_heap=get_top_recommendations(movie_title,movie_id,True) #[poster,title,sim_score]
                 
                 for val in min_heap:
@@ -345,18 +347,11 @@ def logout():
 @app.route("/like-movie",methods=["POST"])
 def like_movie():
     movie=request.form.get("movie")
-    query1="SELECT id,title FROM movies WHERE LOWER(title)=%s"
-    values=(movie,)
-    cursor=mysql.get_db().cursor()
-    cursor.execute(query1,values)
-    tp=cursor.fetchone()
-    movie_id,movie_title=tp[0],tp[1]
-    query2="SELECT user_id FROM users WHERE username=%s"
-    values2=(session['user'],)
-    cursor.execute(query2,values2)
-    user_id=cursor.fetchone()[0]
+    movie_id=getIndexFromTitle(movie)
+    user_id=get_user_id(session['user'])
     query3="SELECT * FROM movie_likes WHERE user_id=%s AND movie_id=%s"
     values3=(user_id,movie_id)
+    cursor=mysql.get_db().cursor()
     cursor.execute(query3,values3)
     res=cursor.fetchone()
     if not res:
@@ -457,6 +452,25 @@ def update():
         count+=1
     mysql.get_db().commit()
     return jsonify("success")
+
+@app.route('/find-genres',methods=["POST"])
+def get_genres():
+    genre=request.form.get('genre')
+    print(genre)
+    query="SELECT movies.title FROM movies JOIN movie_genres ON movies.id=movie_genres.movie_id JOIN genres ON genres.genre_id=movie_genres.genre_id WHERE genres.name=%s LIMIT 100"
+    values=(genre,)
+    cursor=mysql.get_db().cursor()
+    cursor.execute(query,values)
+    results=cursor.fetchall()
+    response={}
+    for movie in results:
+        title=movie[0]
+        path=get_movie_poster(title)
+        if not path:
+            continue
+        response[title]=path
+    return jsonify(response)
+
     
 @app.route('/explore')
 def explore_page():
