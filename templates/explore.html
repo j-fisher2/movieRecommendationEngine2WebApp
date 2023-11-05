@@ -1,14 +1,21 @@
 {%extends 'base.html'%}
 {%block content%}
+<style>
+  body{
+    background:linear-gradient(109.6deg,rgb(36,45,57) 11.2%,rgb(16,37,60) 51.2%,rgb(0,0,0) 98.6%);
+  }
+</style>
 <div style="background:linear-gradient(109.6deg,rgb(36,45,57) 11.2%,rgb(16,37,60) 51.2%,rgb(0,0,0) 98.6%); height:100vh;">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossOrigin="anonymous"/>
     <script src="{{url_for('static',filename='js/main.js')}}"></script>
     <link rel="stylesheet" href="{{url_for('static',filename='css/styles.css')}}">
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark" style="width:100vw">
-      <div class="mx-auto">
+      <div class="mx-auto" style="text-align:center;justify-content: left;display:flex;position:relative">
         <h1 class="navbar-brand" style="font-size:2rem;">Movies.io</h1>
       </div>
-      <a class='nav-link' href="http://localhost:5000/home/{{session.user}}">Home</a>
+      <a class="nav-link" href="http://localhost:5000/home/{{session.user}}" style="color:#ffc107">Home</a>
+      <a href="" class="nav-link">Your Liked Movies</a>
+      <a href="http://localhost:5000/explore" class="nav-link">Explore</a>
       <a href="http://localhost:5000/poster/search" class="nav-link">Movie Posters</a>
       <a class="nav-link" href="http://localhost:5000/search">Find Similar Movies to ___</a>
       {%if session.user%}
@@ -24,8 +31,10 @@
           <button class="b" id="g{{loop.index}}" style=></button>
             <span>{{genre}}</span>
             <input type="hidden" name="genre" value="{{genre}}">
-        </form>
-        
-    {%endfor%}
+        </form>   
+      {%endfor%}
+      <br>
+      <div id="poster-container"></div>
+    </div>
 </div>
 {%endblock%}
