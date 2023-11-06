@@ -412,7 +412,6 @@ def update():
     r=cursor.fetchall()
     seen=set()
     movies_user_has_liked=get_user_likes(user,cursor)
-    print(movies_user_has_liked)
     for row in r:
         id=row[0]
         user_id=row[1]
@@ -476,6 +475,13 @@ def get_genres():
 def explore_page():
     genres=genre_ids.keys()
     return render_template('explore.html',genres=genres)
+
+@app.route('/<user>/liked-movies')
+def current_liked_movies(user):
+    cursor=mysql.get_db().cursor()
+    liked_movies=get_user_likes(user,cursor)
+    liked_movies=[[get_movie_poster(getTitleFromIndex(i)),getTitleFromIndex(i)] for i in liked_movies]
+    return render_template('liked_movies.html',top_movies=liked_movies)
 
 topRecommendationCache={}
 indexCache=Cache(1000)
