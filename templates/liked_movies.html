@@ -17,13 +17,13 @@
       {%endif%}
     </nav>
     <div style="text-align:center;margin-bottom:100px">
-      <h2 style="color:white">Your Top Recommendations</h2>
+      <h2 style="color:white">Your Likes</h2>
     </div>
     {%for movie in top_movies%}
-      <div class="image-container">
-        <img src="{{movie[0]}}">
-        <p style="color:white">{{movie[1]}}</p>
-    </div>
+        <div class="image-container">
+            <img src="{{movie[0]}}">
+            <p style="color:white">{{movie[1]}}</p>
+        </div>
     {%endfor%}
 </div>
 {%endblock%}
