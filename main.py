@@ -455,10 +455,23 @@ def update():
 @app.route('/find-genres',methods=["POST"])
 def get_genres():
     genre=request.form.get('genre')
-    query="SELECT movies.title FROM movies JOIN movie_genres ON movies.id=movie_genres.movie_id JOIN genres ON genres.genre_id=movie_genres.genre_id WHERE genres.name=%s LIMIT 100"
-    values=(genre,)
-    cursor=mysql.get_db().cursor()
-    cursor.execute(query,values)
+    year=request.form.get('year')
+
+    query=""
+    if year=="":
+        query="SELECT movies.title FROM movies JOIN movie_genres ON movies.id=movie_genres.movie_id JOIN genres ON genres.genre_id=movie_genres.genre_id WHERE genres.name=%s LIMIT 100"
+        values=(genre,)
+        cursor=mysql.get_db().cursor()
+        cursor.execute(query,values)
+    else:
+        y=year.split("-")
+        min_year=y[0]+"-01-01"
+        max_year=y[1]+"-01-01"
+        query="SELECT movies.title FROM movies JOIN movie_genres ON movies.id=movie_genres.movie_id JOIN genres ON genres.genre_id=movie_genres.genre_id WHERE genres.name=%s AND movies.release_date BETWEEN %s AND %s LIMIT 100"
+        values=(genre,min_year,max_year)
+        cursor=mysql.get_db().cursor()
+        cursor.execute(query,values)
+
     results=cursor.fetchall()
     response={}
     for movie in results:
