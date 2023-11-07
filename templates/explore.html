@@ -26,6 +26,19 @@
     <div style="text-align:center;margin-bottom:50px">
       <h2 style="color:white">Explore</h2>
     </div>
+    <div style="display:flex;align-items:center;justify-content:center">
+      <select id="year">
+        <option value="">Year</option>
+        <option value="2010-2020">2010-2020</option>
+        <option value="2000-2010">2000-2010</option>
+        <option value="1990-2000">1990-2000</option>
+        <option value="1980-1990">1980-1990</option>
+        <option value="1970-1980">1970-1980</option>
+        <option value="1960-1970">1960-1970</option>
+        <option value="1950-1960">1950-1960</option>
+        <option value="1920-1950">1920-1950</option>
+      </select>
+    </div>
     {%for genre in genres%}
         <form class='bubble' id=genre-form{{loop.index}}>
           <button class="b" id="g{{loop.index}}" style=></button>
