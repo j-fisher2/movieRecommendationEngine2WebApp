@@ -446,7 +446,7 @@ def update():
         values=(user_id,rec[1],rec[0])
         if int(score)!=1:
             cursor.execute(query,values)
-        if count<20 and int(score)!=1:
+        if count<20 and int(score)!=1 and rec[1] not in movies_user_has_liked:
             topRecommendationCache[session['user']].add(getTitleFromIndex(rec[1]).lower())
         count+=1
     mysql.get_db().commit()
@@ -455,7 +455,6 @@ def update():
 @app.route('/find-genres',methods=["POST"])
 def get_genres():
     genre=request.form.get('genre')
-    print(genre)
     query="SELECT movies.title FROM movies JOIN movie_genres ON movies.id=movie_genres.movie_id JOIN genres ON genres.genre_id=movie_genres.genre_id WHERE genres.name=%s LIMIT 100"
     values=(genre,)
     cursor=mysql.get_db().cursor()
