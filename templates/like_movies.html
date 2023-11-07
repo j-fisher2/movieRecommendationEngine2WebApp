@@ -1,6 +1,11 @@
 {%extends 'base.html'%}
 {%block title%}Movie Recommender{%endblock%}
 {%block content%}
+<style>
+    body{
+      background:linear-gradient(109.6deg,rgb(36,45,57) 11.2%,rgb(16,37,60) 51.2%,rgb(0,0,0) 98.6%);
+    }
+  </style>
 <div class="App">
     <link rel="stylesheet" href="{{url_for('static', filename='css/styles.css')}}" />
     <script src="{{url_for('static', filename='js/main.js')}}"></script>
@@ -17,12 +22,12 @@
         {%endif%}
     </nav>
     <form method="POST" action="http://localhost:5000/initial-liked-movies/{{session.user}}">
-        <h4>Like Some Movies</h4>
+        <h4 style="color:white">Like Some Movies</h4>
         {% for source in sources%}
             {%if source[1]!=movie%}
                 <div class="image-container">
                     <img src="{{source[0]}}">
-                    <p>{{source[1]}}</p>
+                    <p style="color:white">{{source[1]}}</p>
                     <input type="checkbox" id="{{source[1]}}" value="{{source[1]}}" name="checkboxes">
                 </div>
             {%endif%}
@@ -30,4 +35,5 @@
         <br>
         <input type="submit">
     </form>
+</div>
 {%endblock%}
