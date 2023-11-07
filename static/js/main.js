@@ -2,6 +2,14 @@ document.addEventListener("DOMContentLoaded", function() {
     var likeForms = document.getElementsByClassName('movie-form');
 
     var genreForms=document.getElementsByClassName('bubble')
+    var year=document.getElementById("year")
+    var cur_year=""
+    if(year){
+        year.addEventListener("change",()=>{
+            cur_year=year.value
+            console.log(cur_year)
+        })
+    }
 
     for(let i=0;i<genreForms.length;i++){
         var genre_button=genreForms[i].querySelector('#g'+(i+1))
@@ -11,6 +19,7 @@ document.addEventListener("DOMContentLoaded", function() {
                 e.preventDefault();
                 
                 var formData=new FormData(genreForms[i]);
+                formData.append("year",cur_year)
                 fetch('/find-genres',{
                     method:"POST",
                     body:formData,
@@ -22,6 +31,7 @@ document.addEventListener("DOMContentLoaded", function() {
                         if (data.hasOwnProperty(movie)) {
                             if(children&&children[idx]){
                                 children[idx].src=data[movie]
+                                children[idx].style.display="block"
                                 idx++
                             }
                             else{
@@ -30,6 +40,11 @@ document.addEventListener("DOMContentLoaded", function() {
                                 child.className="poster"
                                 parent.appendChild(child);
                             }
+                        }
+                    }
+                    if(idx!=0&&idx<children.length){
+                        for(let i=idx;i<children.length;i++){
+                            children[i].style.display="none"
                         }
                     }
                 })
