@@ -1,6 +1,8 @@
 .App {
     text-align: center;
     color:#541e1b;
+    margin:0;
+    padding:0;
   }
   
 #posterContainer{
