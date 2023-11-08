@@ -495,6 +495,17 @@ def current_liked_movies(user):
     liked_movies=[[get_movie_poster(getTitleFromIndex(i)),getTitleFromIndex(i)] for i in liked_movies]
     return render_template('liked_movies.html',top_movies=liked_movies)
 
+@app.route("/search-terms/<term>")
+def get_search_recommendations(term):
+    query="SELECT title from movies JOIN search_frequency ON search_frequency.movie_id=movies.id WHERE LOWER(title) LIKE %s ORDER BY search_frequency.frequency DESC LIMIT 6"
+    cursor=mysql.get_db().cursor()
+    v=term+'%'
+    values=(v,)
+    cursor.execute(query,values)
+    res=cursor.fetchall()
+    res=[r[0] for r in res]
+    return jsonify(res)
+
 topRecommendationCache={}
 indexCache=Cache(1000)
 titleCache=Cache(1000)
