@@ -3,6 +3,27 @@
 <div style="background:linear-gradient(109.6deg,rgb(36,45,57) 11.2%,rgb(16,37,60) 51.2%,rgb(0,0,0) 98.6%);height:100vh">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossOrigin="anonymous"/>
 <script src="{{url_for('static',filename='js/main.js')}}"></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    var movie_search=document.getElementById("movie_search")
+    const datalist=document.getElementById("recommendations")
+    movie_search.addEventListener("input",()=>{
+      while(datalist.firstChild){
+        datalist.removeChild(datalist.firstChild)
+      }
+      const term=movie_search.value;
+      if(term){
+        fetch(`http://localhost:5000/search-terms/${term}`).then(res=>res.json()).then(data=>{
+          for(let r of data){
+            var rec=document.createElement('option')
+            rec.value=r
+            datalist.appendChild(rec)
+          }
+        });
+      }
+    })
+  })
+</script>
 <style>
   .c-form{
     display:flex;
@@ -32,7 +53,8 @@
 <h6 style="padding-top:50px;align-items:center;display:flex;justify-content:center;color:red">{{session.error}}</h6>
 {%endif%}
 <form class="c-form" method="POST" action="http://localhost:5000/search/recommendations">
-    <input type="text" name="movie">
+    <input id="movie_search" type="text" name="movie" list="recommendations">
+    <datalist id="recommendations"></datalist>
     <input type="submit" value="Recommend" class="btn btn-success" style="margin-left:20px">
 </form>
 </div>
