@@ -220,6 +220,15 @@ def get_user_likes(username,cursor):
         movie_list.add(m[0])
     return movie_list
 
+def get_top_searches():
+    query="SELECT title FROM movies JOIN search_frequency ON movies.id=search_frequency.movie_id ORDER BY search_frequency.frequency DESC LIMIT 20"
+    cursor=mysql.get_db().cursor()
+    cursor.execute(query)
+    results=cursor.fetchall()
+    r=[]
+    for movie in results:
+        r.append(movie[0])
+    return r
     
 @app.route("/poster/<movie>")
 def home(movie):
@@ -314,7 +323,9 @@ def extract_movies(user):
 
 @app.route("/home/na")
 def non_user_home():
-    return render_template('user_home.html')
+    popular_movies=get_top_searches()
+    popular_movies=[[get_movie_poster(p),p] for p in popular_movies]
+    return render_template('user_home.html',top_movies=popular_movies)
 
 @app.route("/login/")
 def login():
