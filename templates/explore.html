@@ -13,8 +13,12 @@
       <div class="mx-auto" style="text-align:center;justify-content: left;display:flex;position:relative">
         <h1 class="navbar-brand" style="font-size:2rem;">Movies.io</h1>
       </div>
-      <a class="nav-link" href="http://localhost:5000/home/{{session.user}}" style="color:#ffc107">Home</a>
-      <a href="http://localhost:5000/{{session.user}}//liked-movies" class="nav-link">Your Liked Movies</a>
+      {%if session.user%}
+        <a class="nav-link" href="http://localhost:5000/home/{{session.user}}" style="color:#ffc107">Home</a>
+        <a href="http://localhost:5000/{{session.user}}//liked-movies" class="nav-link">Your Liked Movies</a>
+      {%else%}
+        <a class="nav-link" href="http://localhost:5000/home/na" style="color:#ffc107">Home</a>
+      {%endif%}
       <a href="http://localhost:5000/explore" class="nav-link">Explore</a>
       <a href="http://localhost:5000/poster/search" class="nav-link">Movie Posters</a>
       <a class="nav-link" href="http://localhost:5000/search">Find Similar Movies to ___</a>

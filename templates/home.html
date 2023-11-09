@@ -8,15 +8,17 @@
       <div class="mx-auto" style="text-align:center;justify-content: left;display:flex;position:relative">
         <h1 class="navbar-brand" style="font-size:2rem;">Movies.io</h1>
       </div>
-      <a class="nav-link" href="http://localhost:5000/home/{{session.user}}" style="color:#ffc107">Home</a>
-      <a href="http://localhost:5000/{{session.user}}//liked-movies" class="nav-link">Your Liked Movies</a>
+      {%if session.user%}
+        <a class="nav-link" href="http://localhost:5000/home/{{session.user}}" style="color:#ffc107">Home</a>
+        <a href="http://localhost:5000/{{session.user}}//liked-movies" class="nav-link">Your Liked Movies</a>
+        <a class="nav-link" href="http://localhost:5000/logout">Logout</a>
+        <a class="nav-link" style="color:white">{{session.user}}</a>
+      {%else%}
+        <a class="nav-link" href="http://localhost:5000/home/na" style="color:#ffc107">Home</a>
+      {%endif%}
       <a href="http://localhost:5000/explore" class="nav-link">Explore</a>
       <a href="http://localhost:5000/poster/search" class="nav-link">Movie Posters</a>
       <a class="nav-link" href="http://localhost:5000/search">Find Similar Movies to ___</a>
-      {%if session.user%}
-        <a class="nav-link" href="http://localhost:5000/logout">Logout</a>
-        <a class="nav-link" style="color:white">{{session.user}}</a>
-      {%endif%}
     </nav>
     <h5 style="padding-top:50px;align-items:center;display:flex;justify-content:center;color:red">Movie Poster Search</h5>
     <form method="POST" action="http://localhost:5000/poster/query" class="center">
