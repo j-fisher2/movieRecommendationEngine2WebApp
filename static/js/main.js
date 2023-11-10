@@ -1,6 +1,9 @@
 document.addEventListener("DOMContentLoaded", function() {
     var likeForms = document.getElementsByClassName('movie-form');
 
+    var cur_user=document.getElementById("cur-user");
+
+
     var genreForms=document.getElementsByClassName('bubble')
     var year=document.getElementById("year")
     var cur_year=""
@@ -66,18 +69,23 @@ document.addEventListener("DOMContentLoaded", function() {
             likeButton.addEventListener("click", function(e) {
                 e.preventDefault();
                 var formData = new FormData(likeForms[i]);
+                if(cur_user){
+                    fetch('/like-movie', {
+                        method: 'POST',
+                        body: formData,
+                    }).then(res => res.json()).then(data => {
+                        console.log(data);
+                        alert("You liked a movie")
+                    })
+                    fetch('/update-user-profile',{
+                        method:"POST",
+                        body:formData,
+                    }).then(res=>res.json()).then(data=>console.log(data));
+                }
+                else{
+                    alert("Please create an account to like movies.")
+                }
 
-                fetch('/like-movie', {
-                    method: 'POST',
-                    body: formData,
-                }).then(res => res.json()).then(data => {
-                    console.log(data);
-                    alert("You liked a movie")
-                })
-                fetch('/update-user-profile',{
-                    method:"POST",
-                    body:formData,
-                }).then(res=>res.json()).then(data=>console.log(data));
             });
         }
     }
