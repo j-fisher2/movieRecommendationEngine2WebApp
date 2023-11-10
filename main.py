@@ -173,8 +173,9 @@ def filter_movies(top_movies):  #user first likes movies
         query2="INSERT INTO recommendations(user_id,movie_id,score) VALUES(%s,%s,%s)"
         values=(get_user_id(user),id,sim_score)
         cursor.execute(query2,values)
-        topRecommendationCache[session['user']].add(title.lower())
-        added.add(title.lower())
+        if len(topRecommendationCache[session['user']])<20:
+            topRecommendationCache[session['user']].add(title.lower())
+            added.add(title.lower())
     mysql.get_db().commit()
     return top_movies
 
