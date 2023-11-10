@@ -27,8 +27,8 @@
       {%if session.user%}
         <h2 style="color:white">Your Top Recommendations</h2>
       {%else%}
-        <h6 style="color:#dc3545">*Create an account to recieve personalized movie recommendations</h6>
         <h2 style="color:white">Popular</h2>
+        <h6 style="color:#dc3545"><a href="http://localhost:5000">Create an account</a> to recieve personalized movie recommendations</h6>
       {%endif%}
     </div>
     {%for movie in top_movies%}

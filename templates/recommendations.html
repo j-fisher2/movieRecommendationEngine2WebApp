@@ -20,7 +20,7 @@
         <a class="nav-link" href="http://localhost:5000/search">Find Similar Movies to ___</a>
         {%if session.user%}
           <a class="nav-link" href="http://localhost:5000/logout">Logout</a>
-          <a class="nav-link" style="color:white">{{session.user}}</a>
+          <a id="cur-user" class="nav-link" style="color:white">{{session.user}}</a>
         {%endif%}
     </nav>
     <a href="http://localhost:5000/search">Search Again</a>
