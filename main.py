@@ -159,6 +159,14 @@ def generate_list():
     titles=[title.lower() for title in titles]
     return titles
 
+def get_release_date(title):
+    query="SELECT release_date FROM movies WHERE LOWER(title)=%s"
+    values=(title,)
+    cursor=mysql.get_db().cursor()
+    cursor.execute(query,values)
+    res=cursor.fetchone()[0]
+    return res
+
 def filter_movies(top_movies):  #user first likes movies
     #save final list and scores within recommendations table
     user=session['user']
@@ -261,6 +269,7 @@ def getSimilar():
         session.pop('error')
     update_search_frequency(idx)
     minHeap=get_top_recommendations(movie,idx)
+    minHeap=[i+[get_release_date(i[1])]for i in minHeap]
     return render_template('recommendations.html',movie=movie,sources=minHeap)
 
 @app.route("/")
@@ -280,7 +289,7 @@ def user_home(user):
             topMovies=topRecommendationCache[session['user']]
             movie_list=[]
             for movie in topMovies:
-                movie_list.append([get_movie_poster(movie.lower()),get_proper_title(movie)])
+                movie_list.append([get_movie_poster(movie.lower()),get_proper_title(movie),get_release_date(movie)])
             return render_template('user_home.html',top_movies=movie_list)
         else:
             seen=set()
@@ -325,7 +334,7 @@ def extract_movies(user):
 @app.route("/home/na")
 def non_user_home():
     popular_movies=get_top_searches()
-    popular_movies=[[get_movie_poster(p),p] for p in popular_movies]
+    popular_movies=[[get_movie_poster(p),p,get_release_date(p)] for p in popular_movies]
     return render_template('user_home.html',top_movies=popular_movies)
 
 @app.route("/login/")
@@ -504,7 +513,7 @@ def explore_page():
 def current_liked_movies(user):
     cursor=mysql.get_db().cursor()
     liked_movies=get_user_likes(user,cursor)
-    liked_movies=[[get_movie_poster(getTitleFromIndex(i)),getTitleFromIndex(i)] for i in liked_movies]
+    liked_movies=[[get_movie_poster(getTitleFromIndex(i)),getTitleFromIndex(i),get_release_date(getTitleFromIndex(i))] for i in liked_movies]
     return render_template('liked_movies.html',top_movies=liked_movies)
 
 @app.route("/search-terms/<term>")
