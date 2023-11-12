@@ -34,7 +34,7 @@
     {%for movie in top_movies%}
       <div class="image-container">
         <img src="{{movie[0]}}">
-        <p style="color:white">{{movie[1]}}</p>
+        <p style="color:white">{{movie[1]}} ({{movie[-1].year}})</p>
     </div>
     {%endfor%}
 </div>
