@@ -9,6 +9,7 @@ from sklearn.metrics.pairwise import cosine_similarity
 import heapq
 import redis
 import datetime
+from werkzeug.security import generate_password_hash,check_password_hash
 load_dotenv()
 
 app=Flask(__name__)
@@ -346,19 +347,19 @@ def verify_login():
     username = request.form.get("username")
     passw = request.form.get("pass")
 
-    query = "SELECT * FROM users WHERE username=%s AND password=%s"
+    query = "SELECT password FROM users WHERE username=%s"
     cursor = mysql.get_db().cursor()
-    values = (username, passw)
+    values = (username,)
     cursor.execute(query,values)
     result=cursor.fetchone()
     if result:
-        if 'error' in session.keys():
-            session.pop('error')
-        session['user']=username
-        return redirect(url_for('user_home',user=username))
-    else:
-        session['error']="invalid login credentials"
-        return redirect(url_for('login'))
+        if check_password_hash(result[0],passw):
+            if 'error' in session.keys():
+                session.pop('error')
+            session['user']=username
+            return redirect(url_for('user_home',user=username))
+    session['error']="invalid login credentials"
+    return redirect(url_for('login'))
 
 @app.route("/logout",methods=["GET"])
 def logout():
@@ -396,6 +397,8 @@ def verify_signup():
     if password!=password_confirm:
         session['error']="password and password confirmation must match"
         return redirect(url_for('signupPage'))
+    hashed_pass=generate_password_hash(password,method='sha256')
+    print(hashed_pass)
     cursor = mysql.get_db().cursor()
 
     query = "SELECT * FROM users WHERE username=%s"
@@ -407,13 +410,14 @@ def verify_signup():
     else:
         date_now=datetime.date.today()
         query = "INSERT INTO users (username, password,registration_date) VALUES (%s, %s,%s)"
-        values = (username, password,date_now)
+        values = (username, hashed_pass,date_now)
         try:
             cursor.execute(query, values)
             mysql.get_db().commit()  # Commit the transaction
         except Exception as e:
             print(f"Error: {e}")
             mysql.get_db().rollback()  # Rollback the transaction in case of an error
+            return redirect(url_for('signupPage'))
         cursor.close()
         session['user']=username
         if 'error' in session.keys():
