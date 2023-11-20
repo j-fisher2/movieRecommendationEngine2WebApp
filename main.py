@@ -174,6 +174,7 @@ def filter_movies(top_movies):  #user first likes movies
     cursor=mysql.get_db().cursor()
     added=set()
     topRecommendationCache[user]=set()
+    top_movies=[i+[get_release_date(i[1])] for i in top_movies]
     for m in top_movies:
         poster,title,sim_score=m[0],m[1],m[2]
         if int(sim_score)==1 or title.lower() in added:
