@@ -35,8 +35,7 @@ Get an API key from TMDB.
 Update the .env file with your API key.
 
 Prepare movie data:
-Ensure you have a movie_dataset.csv file with movie data.
-If not, you can use the one provided in this repository or obtain a dataset from a reliable source, or manually enter movies that match the fields.
+Ensure you have a movie_dataset.csv file with movie data, or that you manually enter movies that match the fields.
 Create a cosine similarity matrix based on the given fields found in processData.py
 
 Run the application:
