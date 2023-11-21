@@ -17,9 +17,7 @@ Dotenv
 
 Installation
 
-Clone the repository:
-git clone https://github.com/yourusername/movie-recommendation-engine.git
-cd movie-recommendation-engine
+Clone the repository
 
 Install Python dependencies:
 pip install -r requirements.txt
