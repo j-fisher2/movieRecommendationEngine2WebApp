@@ -319,6 +319,8 @@ def like_movies(user):
 @app.route('/initial-liked-movies/<user>',methods=["POST"])
 def extract_movies(user):
     checked_values=request.form.getlist('checkboxes')
+    if not len(checked_values):
+        return redirect(url_for('like_movies',user=user))
     query="SELECT user_id FROM users WHERE username=%s"
     values=(user,)
     cursor=mysql.get_db().cursor()
