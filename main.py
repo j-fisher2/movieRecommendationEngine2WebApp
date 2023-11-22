@@ -10,6 +10,7 @@ import heapq
 import redis
 import datetime
 from werkzeug.security import generate_password_hash,check_password_hash
+from datetime import timedelta
 load_dotenv()
 
 app=Flask(__name__)
@@ -21,6 +22,7 @@ app.config["MYSQL_DATABASE_HOST"]=os.getenv("HOST")
 api_key = os.getenv('API_KEY')
 r=redis.Redis(host='localhost',port=os.getenv("REDIS_PORT"),decode_responses=True)
 mysql=MySQL(app)
+app.permanent_session_lifetime=timedelta(hours=10)
 
 df=pd.read_csv("movie_dataset.csv")
 cos_similarity=pd.read_csv("cosine_similarity.csv",index_col=None,header=None)
@@ -280,6 +282,8 @@ def homePage():
 
 @app.route("/home/<user>")
 def user_home(user):
+    if 'user' not in session.keys():
+        return redirect(url_for('homePage'))
     top_movies=[]
     query="SELECT username,movie_id FROM users JOIN movie_likes ON users.user_id=movie_likes.user_id WHERE users.username=%s"
     values=(user)
@@ -312,12 +316,16 @@ def user_home(user):
 
 @app.route('/like_movies/<user>')
 def like_movies(user):
+    if 'user' not in session.keys():
+        return redirect(url_for('homePage'))
     movies=generate_list()
     movies=[[get_movie_poster(movie),get_proper_title(movie)] for movie in movies]
     return render_template('like_movies.html',sources=movies)
 
 @app.route('/initial-liked-movies/<user>',methods=["POST"])
 def extract_movies(user):
+    if 'user' not in session.keys():
+        return redirect(url_for('homePage'))
     checked_values=request.form.getlist('checkboxes')
     if not len(checked_values):
         return redirect(url_for('like_movies',user=user))
@@ -371,6 +379,8 @@ def logout():
 
 @app.route("/like-movie",methods=["POST"])
 def like_movie():
+    if 'user' not in session.keys():
+        return redirect(url_for('homePage'))
     movie=request.form.get("movie")
     movie_id=getIndexFromTitle(movie)
     user_id=get_user_id(session['user'])
@@ -401,7 +411,6 @@ def verify_signup():
         session['error']="password and password confirmation must match"
         return redirect(url_for('signupPage'))
     hashed_pass=generate_password_hash(password,method='sha256')
-    print(hashed_pass)
     cursor = mysql.get_db().cursor()
 
     query = "SELECT * FROM users WHERE username=%s"
@@ -429,6 +438,8 @@ def verify_signup():
 
 @app.route("/update-user-profile",methods=["POST"])
 def update():
+    if 'user' not in session.keys():
+        return redirect(url_for('homePage'))
     movie=request.form.get('movie')
     user=session['user']
     id=get_user_id(user)
@@ -518,6 +529,8 @@ def explore_page():
 
 @app.route('/<user>/liked-movies')
 def current_liked_movies(user):
+    if 'user' not in session.keys():
+        return redirect(url_for('homePage'))
     cursor=mysql.get_db().cursor()
     liked_movies=get_user_likes(user,cursor)
     liked_movies=[[get_movie_poster(getTitleFromIndex(i)),getTitleFromIndex(i),get_release_date(getTitleFromIndex(i))] for i in liked_movies]
